@@ -1,8 +1,12 @@
 package com.utn.controllers;
 
 import com.utn.models.Airport;
+import com.utn.models.Road;
 import com.utn.services.AirportService;
+import com.utn.services.RoadService;
 import com.utn.wrappers.AirportWrapperWS;
+import com.utn.wrappers.RoadWrapper;
+import com.utn.wrappers.RoadWrapperWS;
 import javafx.scene.text.Text;
 import netscape.javascript.JSObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +31,35 @@ public class AirportController {
     @Autowired
     AirportService airportService;
 
+    @Autowired
+    RoadService roadService;
+
     @GetMapping("")
     public @ResponseBody ResponseEntity<List<AirportWrapperWS>> getAll(){
         try{
             List<AirportWrapperWS> airportList = airportService.findAll();
-            return new ResponseEntity<>(airportList,HttpStatus.OK);
+            if(airportList.size()>0) {
+                return new ResponseEntity<>(airportList, HttpStatus.OK);
+            }
+            else {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+        }
+        catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/{iatacode}")
+    public @ResponseBody ResponseEntity<List<RoadWrapperWS>>getRoadsByAirportOriginIata(@PathVariable (value="iatacode") String iatacode){
+        try {
+            List<RoadWrapperWS> roadList = roadService.getRoadsByAirportOriginIata(iatacode);
+            if(roadList.size()>0) {
+                return new ResponseEntity<>(roadList, HttpStatus.OK);
+            }
+            else {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
         }
         catch (Exception e){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
